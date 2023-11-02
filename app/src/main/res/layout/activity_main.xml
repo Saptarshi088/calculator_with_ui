@@ -41,15 +41,16 @@
         style="@style/buttonRow">
         <Button
             android:id="@+id/acButton"
-            android:textColor="@color/orange"
+            android:textColor="@color/red"
             style="@style/buttonNumber"
             android:text="AC">
         </Button>
         <Button
             android:id="@+id/delButton"
-            android:textColor="@color/orange"
+            android:textColor="@color/red"
             style="@style/buttonNumber"
-            android:text="DEL">
+            android:text="⌫"
+            android:layout_gravity="center">
         </Button>
         <Button
             android:id="@+id/percentButton"

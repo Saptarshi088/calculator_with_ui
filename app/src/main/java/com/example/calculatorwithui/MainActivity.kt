@@ -1,5 +1,6 @@
 package com.example.calculatorwithui
 
+import android.icu.util.Output
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -10,6 +11,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        var str1=""
+        var result:Double
 
         val userInput=findViewById<TextView>(R.id.inputUser)
         val displayOutput=findViewById<TextView>(R.id.output)
@@ -33,5 +36,16 @@ class MainActivity : AppCompatActivity() {
         val EQUALS=findViewById<Button>(R.id.equalsButton)
         val PERCENT=findViewById<Button>(R.id.percentButton)
 
+
+        PLUS.setOnClickListener {
+            str1+="+"
+
+        }
+        ONE.setOnClickListener {
+            str1+="1"
+        }
+        userInput.setOnClickListener{
+            userInput.text=str1
+        }
     }
 }
