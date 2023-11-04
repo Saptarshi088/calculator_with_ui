@@ -3,49 +3,161 @@ package com.example.calculatorwithui
 import android.icu.util.Output
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import com.example.calculatorwithui.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+    private var canAddOperation = false
+    private var canAddDecimal = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+    }
 
-        var str1=""
-        var result:Double
+    fun acAction(view: View) {
+        binding.inputUser.text = " "
+        binding.outputText.text = " "
+    }
 
-        val userInput=findViewById<TextView>(R.id.inputUser)
-        val displayOutput=findViewById<TextView>(R.id.output)
-        val AC=findViewById<Button>(R.id.acButton)
-        val DEL=findViewById<Button>(R.id.delButton)
-        val DIVISION=findViewById<Button>(R.id.divButton)
-        val SEVEN=findViewById<Button>(R.id.sevenButton)
-        val EIGHT =findViewById<Button>(R.id.eightButton)
-        val NINE=findViewById<Button>(R.id.nineButton)
-        val FOUR=findViewById<Button>(R.id.fourButton)
-        val FIVE = findViewById<Button>(R.id.fiveButton)
-        val SIX =findViewById<Button>(R.id.sixButton)
-        val ONE=findViewById<Button>(R.id.oneButton)
-        val TWO =findViewById<Button>(R.id.twoButton)
-        val THREE =findViewById<Button>(R.id.threeButton)
-        val MINUS=findViewById<Button>(R.id.minusButton)
-        val MUL=findViewById<Button>(R.id.mulButton)
-        val PLUS=findViewById<Button>(R.id.plusButton)
-        val DECIMAL=findViewById<Button>(R.id.decimalButton)
-        val ZERO=findViewById<Button>(R.id.zeroButton)
-        val EQUALS=findViewById<Button>(R.id.equalsButton)
-        val PERCENT=findViewById<Button>(R.id.percentButton)
-
-
-        PLUS.setOnClickListener {
-            str1+="+"
-
-        }
-        ONE.setOnClickListener {
-            str1+="1"
-        }
-        userInput.setOnClickListener{
-            userInput.text=str1
+    fun backSpaceAction(view: View) {
+        val len = binding.inputUser.length()
+        if (len > 0) {
+            binding.inputUser.text = binding.inputUser.text.subSequence(0, len - 1)
         }
     }
+
+    fun numberAction(view: View)
+    {
+        if (view is Button) {
+            if (view.text == ".") {
+                if (canAddDecimal)
+                    binding.inputUser.append(view.text)
+                canAddDecimal = false
+            } else {
+                binding.inputUser.append(view.text)
+            }
+        }
+        canAddOperation = true
+    }
+
+
+    fun operatorAction(view: View) {
+        if(view is Button && canAddOperation){
+            binding.inputUser.append(view.text)
+            canAddOperation=false
+            canAddDecimal=true
+        }
+    }
+
+    fun equalsAction(view: View) {
+        binding.outputText.text=calculateResults()
+    }
+
+    private fun calculateResults(): String {
+        val digitsOperator=digitOperators()
+        if(digitsOperator.isEmpty())return ""
+        val timeDivision=timeDivisionCalculate(digitsOperator)
+        if(timeDivision.isEmpty()) return " "
+
+
+        val result=addSubstractCalculate(timeDivision)
+        return result.toString()
+    }
+
+    private fun addSubstractCalculate(passedList: MutableList<Any>): Float{
+        var result = passedList[0] as Float
+        for(i in passedList.indices){
+            if(passedList[i] is Char && i!=passedList.lastIndex ){
+                val operator = passedList[i]
+                val nextDigit = passedList[i+1] as Float
+                val prevDigit = passedList[i-1] as Float
+                if(operator == '+' ){
+                    result+=nextDigit
+                }
+                if(operator == '-' ){
+                    result-=nextDigit
+                }
+            }
+        }
+
+        return result
+    }
+
+    private fun timeDivisionCalculate(passedList: MutableList<Any>): MutableList<Any> {
+        var list=passedList
+        while(list.contains('X')||list.contains('/')){
+            list =calcTimesDiv(list)
+        }
+        return list
+    }
+
+    private fun calcTimesDiv(passedList: MutableList<Any>): MutableList<Any> {
+        val newList = mutableListOf<Any>()
+        var restartIndex=passedList.size
+        for(i in passedList.indices){
+            if(passedList[i] is Char && i!=passedList.lastIndex && i<restartIndex){
+                val operator = passedList[i]
+                val prevDigit = passedList[i-1] as Float
+                val nextDigit = passedList[i+1] as Float
+                when(operator){
+                    'X'->{
+                        newList.add(prevDigit*nextDigit)
+                        restartIndex=i+1
+                    }
+                    '/'->{
+                        newList.add(prevDigit/nextDigit)
+                        restartIndex=i+1
+                    }
+                    else->{
+                        newList.add(prevDigit)
+                        newList.add(operator)
+                    }
+                }
+            }
+            if(i>restartIndex){
+                newList.add(passedList[i])
+            }
+        }
+
+        return newList
+    }
+
+    private fun digitOperators():MutableList<Any>{
+        val list=mutableListOf<Any>()
+        var curentDigit=""
+        for(character in binding.inputUser.text){
+            if(character.isDigit() || character=='.'){
+                curentDigit+=character
+            }
+            else{
+                list.add(curentDigit.toFloat())
+                curentDigit=""
+                list.add(character)
+            }
+        }
+        if(curentDigit!=""){
+            list.add(curentDigit.toFloat())
+        }
+
+        return list
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
