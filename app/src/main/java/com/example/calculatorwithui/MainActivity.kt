@@ -20,8 +20,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun acAction(view: View) {
-        binding.inputUser.text = " "
-        binding.outputText.text = " "
+        binding.inputUser.text = ""
+        binding.outputText.text = ""
     }
 
     fun backSpaceAction(view: View) {
